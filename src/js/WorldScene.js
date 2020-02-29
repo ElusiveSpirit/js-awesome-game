@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import Skeleton from "./unions/Skeleton"
+import {keyDirections} from "./settings";
 
 export default class WorldScene extends Phaser.Scene {
   constructor() {
@@ -16,7 +17,7 @@ export default class WorldScene extends Phaser.Scene {
   preload() {
     this.load.json('map', 'assets/maps/isometric-grass-and-water.json');
     this.load.spritesheet('tiles', 'assets/sprites/isometric-grass-and-water.png', {frameWidth: 64, frameHeight: 64});
-    this.load.spritesheet('skeleton', 'assets/sprites/skeleton8.png', {frameWidth: 128, frameHeight: 128});
+    Skeleton.preload(this)
     this.load.image('house', 'assets/images/rem_0002.png');
   }
 
@@ -26,27 +27,35 @@ export default class WorldScene extends Phaser.Scene {
     this.buildMap();
     this.placeHouses();
 
-    this.skeletons.push(this.add.existing(new Skeleton(this, 240, 290, 'walk', 'southEast', 100)));
-    this.skeletons.push(this.add.existing(new Skeleton(this, 100, 380, 'walk', 'southEast', 230)));
-    this.skeletons.push(this.add.existing(new Skeleton(this, 620, 140, 'walk', 'south', 380)));
-    this.skeletons.push(this.add.existing(new Skeleton(this, 460, 180, 'idle', 'south', 0)));
+    Skeleton.create(this)
 
-    this.skeletons.push(this.add.existing(new Skeleton(this, 760, 100, 'attack', 'southEast', 0)));
-    this.skeletons.push(this.add.existing(new Skeleton(this, 800, 140, 'attack', 'northWest', 0)));
+    this.cursors = this.input.keyboard.createCursorKeys();
 
-    this.skeletons.push(this.add.existing(new Skeleton(this, 750, 480, 'walk', 'east', 200)));
+    // this.skeletons.push(this.add.existing(new Skeleton(this, 240, 290, 'walk', 'downRight', 100)));
+    // this.skeletons.push(this.add.existing(new Skeleton(this, 100, 380, 'walk', 'downRight', 230)));
+    // this.skeletons.push(this.add.existing(new Skeleton(this, 620, 140, 'walk', 'down', 380)));
+    // this.skeletons.push(this.add.existing(new Skeleton(this, 460, 180, 'idle', 'down', 0)));
+    //
+    // this.skeletons.push(this.add.existing(new Skeleton(this, 760, 100, 'attack', 'downRight', 0)));
+    // this.skeletons.push(this.add.existing(new Skeleton(this, 800, 140, 'attack', 'upLeft', 0)));
+    //
+    // this.skeletons.push(this.add.existing(new Skeleton(this, 750, 480, 'walk', 'right', 200)));
+    //
+    // this.skeletons.push(this.add.existing(new Skeleton(this, 1030, 300, 'die', 'left', 0)));
+    //
+    // this.skeletons.push(this.add.existing(new Skeleton(this, 1180, 340, 'attack', 'upRight', 0)));
+    //
+    // this.skeletons.push(this.add.existing(new Skeleton(this, 1180, 180, 'walk', 'downRight', 160)));
+    //
+    // this.skeletons.push(this.add.existing(new Skeleton(this, 1450, 320, 'walk', 'downLeft', 320)));
+    // this.skeletons.push(this.add.existing(new Skeleton(this, 1500, 340, 'walk', 'downLeft', 340)));
+    // this.skeletons.push(this.add.existing(new Skeleton(this, 1550, 360, 'walk', 'downLeft', 330)));
 
-    this.skeletons.push(this.add.existing(new Skeleton(this, 1030, 300, 'die', 'west', 0)));
+    this.player = this.add.existing(new Skeleton(this, 200, 200, 'idle', 'down', 330))
+    this.physics.world.enable(this.player);
 
-    this.skeletons.push(this.add.existing(new Skeleton(this, 1180, 340, 'attack', 'northEast', 0)));
-
-    this.skeletons.push(this.add.existing(new Skeleton(this, 1180, 180, 'walk', 'southEast', 160)));
-
-    this.skeletons.push(this.add.existing(new Skeleton(this, 1450, 320, 'walk', 'southWest', 320)));
-    this.skeletons.push(this.add.existing(new Skeleton(this, 1500, 340, 'walk', 'southWest', 340)));
-    this.skeletons.push(this.add.existing(new Skeleton(this, 1550, 360, 'walk', 'southWest', 330)));
-
-    this.player = this.add.existing(new Skeleton(this, 300, 300, 'walk', 'east', 330))
+    this.player.stop()
+    // this.player.anims.play('idledown', true);
 
     this.cameras.main.setSize(1600, 600);
 
@@ -58,33 +67,30 @@ export default class WorldScene extends Phaser.Scene {
       skeleton.update();
     });
 
-    // return;
+    const direction = this.getDirectionByKeys()
+    if (direction) {
+      this.player.move(direction)
+    } else {
+      this.player.stop()
+    }
 
-    //  only move when you click
-    // if (game.input.mousePointer.isDown) {
-    //   //  400 is the speed it will move towards the mouse
-    //   game.physics.arcade.moveToPointer(player, 400);
-    //
-    //   //  if it's overlapping the mouse, don't move any more
-    //   if (Phaser.Rectangle.contains(player.body, game.input.x, game.input.y)) {
-    //     player.velocity.setTo(0, 0);
-    //   }
-    // } else {
-    //   player.body.velocity.setTo(0, 0);
-    // }
-    // if (d) {
-    //   this.cameras.main.scrollX -= 0.5;
-    //
-    //   if (this.cameras.main.scrollX <= 0) {
-    //     d = 0;
-    //   }
-    // } else {
-    //   this.cameras.main.scrollX += 0.5;
-    //
-    //   if (this.cameras.main.scrollX >= 800) {
-    //     d = 1;
-    //   }
-    // }
+
+     // only move when you click
+    if (this.input.mousePointer.isDown) {
+      this.physics.moveTo(this.player, this.input.mousePointer.x, this.input.mousePointer.y, 100)
+    } else {
+    }
+  }
+
+  getDirectionByKeys() {
+    const keyDowns = [
+      this.cursors.up.isDown,
+      this.cursors.down.isDown,
+      this.cursors.left.isDown,
+      this.cursors.right.isDown,
+    ]
+    const keyDownsToStr = keyDowns.map(state => state ? '1' : '0').join('')
+    return keyDirections[keyDownsToStr]
   }
 
   buildMap() {
@@ -93,6 +99,9 @@ export default class WorldScene extends Phaser.Scene {
 
     const tilewidth = data.tilewidth;
     const tileheight = data.tileheight;
+
+    this.physics.world.bounds.width = data.widthInPixels;
+    this.physics.world.bounds.height = data.heightInPixels;
 
     this.tileWidthHalf = tilewidth / 2;
     this.tileHeightHalf = tileheight / 2;
