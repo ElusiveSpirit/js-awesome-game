@@ -31,31 +31,10 @@ export default class WorldScene extends Phaser.Scene {
 
     this.cursors = this.input.keyboard.createCursorKeys();
 
-    // this.skeletons.push(this.add.existing(new Skeleton(this, 240, 290, 'walk', 'downRight', 100)));
-    // this.skeletons.push(this.add.existing(new Skeleton(this, 100, 380, 'walk', 'downRight', 230)));
-    // this.skeletons.push(this.add.existing(new Skeleton(this, 620, 140, 'walk', 'down', 380)));
-    // this.skeletons.push(this.add.existing(new Skeleton(this, 460, 180, 'idle', 'down', 0)));
-    //
-    // this.skeletons.push(this.add.existing(new Skeleton(this, 760, 100, 'attack', 'downRight', 0)));
-    // this.skeletons.push(this.add.existing(new Skeleton(this, 800, 140, 'attack', 'upLeft', 0)));
-    //
-    // this.skeletons.push(this.add.existing(new Skeleton(this, 750, 480, 'walk', 'right', 200)));
-    //
-    // this.skeletons.push(this.add.existing(new Skeleton(this, 1030, 300, 'die', 'left', 0)));
-    //
-    // this.skeletons.push(this.add.existing(new Skeleton(this, 1180, 340, 'attack', 'upRight', 0)));
-    //
-    // this.skeletons.push(this.add.existing(new Skeleton(this, 1180, 180, 'walk', 'downRight', 160)));
-    //
-    // this.skeletons.push(this.add.existing(new Skeleton(this, 1450, 320, 'walk', 'downLeft', 320)));
-    // this.skeletons.push(this.add.existing(new Skeleton(this, 1500, 340, 'walk', 'downLeft', 340)));
-    // this.skeletons.push(this.add.existing(new Skeleton(this, 1550, 360, 'walk', 'downLeft', 330)));
-
     this.player = this.add.existing(new Skeleton(this, 200, 200, 'idle', 'down', 330))
     this.physics.world.enable(this.player);
 
     this.player.stop()
-    // this.player.anims.play('idledown', true);
 
     this.cameras.main.setSize(1600, 600);
 
