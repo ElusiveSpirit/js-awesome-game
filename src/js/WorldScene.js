@@ -22,8 +22,6 @@ export default class WorldScene extends Phaser.Scene {
   }
 
   create() {
-    //  Our Skeleton class
-
     this.buildMap();
     this.placeHouses();
 
@@ -46,19 +44,45 @@ export default class WorldScene extends Phaser.Scene {
       skeleton.update();
     });
 
-    const direction = this.getDirectionByKeys()
-    if (direction) {
-      this.player.move(direction)
+    // Remove direction keys moving
+    // const direction = this.getDirectionByKeys()
+    // if (direction) {
+    //   this.player.move(direction)
+    // } else {
+    //   this.player.stop()
+    // }
+
+    if (this.player.isMoving) {
+      const directionStep = this.getAvailableStepForUnit(this.player)
+      this.player.move(directionStep)
     } else {
       this.player.stop()
     }
 
-
      // only move when you click
+
+    // if (this.input.mousePointer.rightButtonReleased()) {
     if (this.input.mousePointer.isDown) {
-      this.physics.moveTo(this.player, this.input.mousePointer.x, this.input.mousePointer.y, 100)
-    } else {
+      this.player.setMoveTo(
+        this.input.mousePointer.x,
+        this.input.mousePointer.y
+      )
     }
+  }
+
+  /**
+   * Return direction for the next unit step
+   * @param unit
+   */
+  getAvailableStepForUnit(unit) {
+    const keyDowns = [
+      unit.moveToY < unit.y,
+      unit.moveToY > unit.y,
+      unit.moveToX < unit.x,
+      unit.moveToX > unit.x,
+    ]
+    const keyDownsToStr = keyDowns.map(state => state ? '1' : '0').join('')
+    return keyDirections[keyDownsToStr]
   }
 
   getDirectionByKeys() {

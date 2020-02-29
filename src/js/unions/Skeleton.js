@@ -44,7 +44,12 @@ export default class Skeleton extends Phaser.GameObjects.Sprite {
     super(scene, x, y, 'skeleton')
     this.scene = scene
     this.velocitySpeed = 80
+    this.velocityAdd = 10
+    this.teleportationDistance = 5
     this.direction = null
+
+    this.moveToX = x
+    this.moveToY = y
   }
 
   /**
@@ -68,21 +73,67 @@ export default class Skeleton extends Phaser.GameObjects.Sprite {
 
     this.playAnimation('walk', direction)
 
-    this.body.setVelocity(0);
+    let xVelocity = 0
+    let yVelocity = 0
 
     // Horizontal movement
     if (rawDirection.includes('left')) {
-      this.body.setVelocityX(-this.velocitySpeed);
+      xVelocity = - this.xDirectionStep
     } else if (rawDirection.includes('right')) {
-      this.body.setVelocityX(this.velocitySpeed);
+      xVelocity = this.xDirectionStep
     }
 
     // Vertical movement
     if (rawDirection.includes('up')) {
-      this.body.setVelocityY(-this.velocitySpeed);
+      yVelocity = - this.yDirectionStep
     } else if (rawDirection.includes('down')) {
-      this.body.setVelocityY(this.velocitySpeed);
+      yVelocity = this.yDirectionStep
     }
+
+    if (Math.abs(yVelocity) <= this.teleportationDistance) {
+      this.y = this.moveToY
+      yVelocity = 0
+    }
+    if (Math.abs(xVelocity) <= this.teleportationDistance) {
+      this.x = this.moveToX
+      xVelocity = 0
+    }
+
+    // Decrease speed moving diagonal
+    if (yVelocity && xVelocity) {
+      xVelocity = parseInt(xVelocity / 2)
+      yVelocity = parseInt(yVelocity / 2)
+    }
+
+    this.body.setVelocityX(xVelocity)
+    this.body.setVelocityY(yVelocity)
+  }
+
+  get isMoving() {
+    return this.moveToX !== this.intX || this.moveToY !== this.intY
+  }
+
+  get intX() {
+    return parseInt(this.x, 10)
+  }
+
+  get intY() {
+    return parseInt(this.y, 10)
+  }
+
+  get xDirectionStep() {
+    const delta = Math.abs(this.moveToX - this.intX)
+    return Math.min(delta, this.velocitySpeed)
+  }
+
+  get yDirectionStep() {
+    const delta = Math.abs(this.moveToY - this.intY)
+    return Math.min(delta, this.velocitySpeed)
+  }
+
+  setMoveTo(x, y) {
+    this.moveToX = x
+    this.moveToY = y
   }
 
   playAnimation(name, direction) {
