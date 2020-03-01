@@ -44,8 +44,7 @@ export default class Skeleton extends Phaser.GameObjects.Sprite {
     super(scene, x, y, 'skeleton')
     this.scene = scene
     this.velocitySpeed = 80
-    this.velocityAdd = 10
-    this.teleportationDistance = 5
+    this.movingInaccuracy = 5
     this.direction = null
 
     this.moveToX = x
@@ -69,7 +68,7 @@ export default class Skeleton extends Phaser.GameObjects.Sprite {
    */
   move(direction) {
     this.direction = direction
-    const rawDirection = direction.toLowerCase()
+    const rawDirection = (direction || '').toLowerCase()
 
     this.playAnimation('walk', direction)
 
@@ -90,27 +89,25 @@ export default class Skeleton extends Phaser.GameObjects.Sprite {
       yVelocity = this.yDirectionStep
     }
 
-    if (Math.abs(yVelocity) <= this.teleportationDistance) {
-      this.y = this.moveToY
-      yVelocity = 0
-    }
-    if (Math.abs(xVelocity) <= this.teleportationDistance) {
-      this.x = this.moveToX
-      xVelocity = 0
-    }
-
     // Decrease speed moving diagonal
     if (yVelocity && xVelocity) {
-      xVelocity = parseInt(xVelocity / 2)
-      yVelocity = parseInt(yVelocity / 2)
+      xVelocity = parseInt(xVelocity / 1.4)
+      yVelocity = parseInt(yVelocity / 1.4)
     }
 
-    this.body.setVelocityX(xVelocity)
-    this.body.setVelocityY(yVelocity)
+    this.body.setVelocity(xVelocity, yVelocity)
   }
 
   get isMoving() {
-    return this.moveToX !== this.intX || this.moveToY !== this.intY
+    return this.isMovingX || this.isMovingY
+  }
+
+  get isMovingX() {
+    return this.xDirectionDelta > this.movingInaccuracy
+  }
+
+  get isMovingY() {
+    return this.yDirectionDelta > this.movingInaccuracy
   }
 
   get intX() {
@@ -121,14 +118,20 @@ export default class Skeleton extends Phaser.GameObjects.Sprite {
     return parseInt(this.y, 10)
   }
 
+  get xDirectionDelta() {
+    return Math.abs(this.moveToX - this.intX)
+  }
+
+  get yDirectionDelta() {
+    return Math.abs(this.moveToY - this.intY)
+  }
+
   get xDirectionStep() {
-    const delta = Math.abs(this.moveToX - this.intX)
-    return Math.min(delta, this.velocitySpeed)
+    return this.velocitySpeed
   }
 
   get yDirectionStep() {
-    const delta = Math.abs(this.moveToY - this.intY)
-    return Math.min(delta, this.velocitySpeed)
+    return this.velocitySpeed
   }
 
   setMoveTo(x, y) {

@@ -76,10 +76,10 @@ export default class WorldScene extends Phaser.Scene {
    */
   getAvailableStepForUnit(unit) {
     const keyDowns = [
-      unit.moveToY < unit.y,
-      unit.moveToY > unit.y,
-      unit.moveToX < unit.x,
-      unit.moveToX > unit.x,
+      unit.isMovingY && unit.moveToY < unit.intY,
+      unit.isMovingY && unit.moveToY > unit.intY,
+      unit.isMovingX && unit.moveToX < unit.intX,
+      unit.isMovingX && unit.moveToX > unit.intX,
     ]
     const keyDownsToStr = keyDowns.map(state => state ? '1' : '0').join('')
     return keyDirections[keyDownsToStr]
