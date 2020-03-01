@@ -34,8 +34,9 @@ export default class WorldScene extends Phaser.Scene {
 
     this.player.stop()
 
-    this.cameras.main.setSize(1600, 600);
+    this.updateCamera();
 
+    this.player.body.setCollideWorldBounds(true);
     // this.cameras.main.scrollX = 800;
   }
 
@@ -63,9 +64,10 @@ export default class WorldScene extends Phaser.Scene {
 
     // if (this.input.mousePointer.rightButtonReleased()) {
     if (this.input.mousePointer.isDown) {
+      // console.log(this.cameras.main)
       this.player.setMoveTo(
-        this.input.mousePointer.x,
-        this.input.mousePointer.y
+        parseInt(this.cameras.main.scrollX) + this.input.mousePointer.x,
+        parseInt(this.cameras.main.scrollY) + this.input.mousePointer.y
       )
     }
   }
@@ -143,5 +145,12 @@ export default class WorldScene extends Phaser.Scene {
     house = this.add.image(1300, 290, 'house');
 
     house.depth = house.y + 86;
+  }
+
+  updateCamera() {
+    // limit camera to map
+    this.cameras.main.setBounds(0, 0, 1600, 600);
+    this.cameras.main.startFollow(this.player);
+    this.cameras.main.roundPixels = true; // avoid tile bleed
   }
 }

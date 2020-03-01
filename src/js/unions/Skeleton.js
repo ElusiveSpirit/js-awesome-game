@@ -96,6 +96,8 @@ export default class Skeleton extends Phaser.GameObjects.Sprite {
     }
 
     this.body.setVelocity(xVelocity, yVelocity)
+
+    this.depth = this.y + 64
   }
 
   get isMoving() {
